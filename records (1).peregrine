@@ -1,0 +1,43 @@
+// records.peregrine -- build a log of N variant records, aggregate it 4 times.
+// Written the way a user would write it; the layout below is chosen by the
+// compiler from the proven ranges, not by the programmer.
+
+const N: u32 = 16_000_000;
+
+enum Ev {
+    Login    { user: str, ts: u32 },
+    Purchase { user: str, ts: u32, amount: u32, qty: u32 },
+    Logout   { ts: u32 }
+}
+
+fn main() {
+    var log: store<Ev>(N);
+    var x: u32 = 12345;
+    for i in 0..N {
+        x = x * 1103515245 + 12345;
+        let r = x;
+        let v = r % 3;
+        let user = "user" + str(r % 4096);
+        if v == 0 {
+            log.push(Ev.Login { user: user, ts: i });
+        } elif v == 1 {
+            log.push(Ev.Purchase { user: user, ts: i, amount: r % 100000, qty: r % 12 });
+        } else {
+            log.push(Ev.Logout { ts: i });
+        }
+    }
+    var sum_ts: u64 = 0;
+    var bytes: u64 = 0;
+    var sum_amt: u64 = 0;
+    var cnt: u64 = 0;
+    repeat 4 {
+        for e in log {
+            match e {
+                Login(l) => { sum_ts += l.ts; bytes += l.user.len; cnt += 1; }
+                Purchase(p) => { sum_ts += p.ts; bytes += p.user.len; sum_amt += p.amount; cnt += 1; }
+                Logout(o) => { sum_ts += o.ts; cnt += 1; }
+            }
+        }
+    }
+    print(sum_ts, " ", bytes, " ", sum_amt, " ", cnt);
+}

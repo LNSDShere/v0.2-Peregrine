@@ -1,0 +1,20 @@
+// safety.peregrine -- what the compiler proves, what it checks, what traps.
+// The loop index is proven in range: no bounds check is emitted.
+// The index j = 8 + (n % 2) is only provably [8, 9]... but the buffer
+// holds 10 elements, so it is proven too. The k index is provable only
+// within [0, 12], which exceeds the buffer, so a runtime check stays and
+// the out-of-range access traps with the source line.
+
+const N: u32 = 10;
+
+fn main() {
+    var a: buf<u32>(N);
+    var n: u32 = 12;
+    for i in 0..N {
+        a[i] = i * 7;
+    }
+    var j: u32 = n % 2;
+    print(a[j]);
+    var k: u32 = n % 13;   // provable range [0,12] exceeds the 10-element buffer
+    print(a[k]);
+}

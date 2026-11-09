@@ -1,0 +1,22 @@
+const N: u32 = 16_000_000;
+
+fn main() {
+    var a: buf<u32>(N);
+    var s: u32 = 123456789;
+    for i in 0..N {
+        s = s * 1103515245 + 12345;
+        a[i] = s;
+    }
+    sort(a);
+    var sum: u64 = 0;
+    for i in 0..N {
+        sum += a[i];
+    }
+    var asc: u32 = 0;
+    for i in 1..N {
+        if a[i] < a[i - 1] {
+            asc += 1;
+        }
+    }
+    print(sum, " ", asc, " ", a[0], " ", a[N - 1], " ", N);
+}

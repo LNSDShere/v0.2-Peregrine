@@ -1,0 +1,21 @@
+const N: u32 = 16_000_000;
+const SLOTS: u32 = 131_072;
+const KEYS: u32 = 65_536;
+
+fn main() {
+    var counts: map<str, u64>(SLOTS);
+    var s: u32 = 424242;
+    for i in 0..N {
+        s = s * 1103515245 + 12345;
+        counts.bump("user" + str(s % KEYS));
+    }
+    var sum: u64 = 0;
+    var wsum: u64 = 0;
+    var cnt: u64 = 0;
+    for kv in counts {
+        sum += kv.val;
+        wsum += kv.key.len * kv.val;
+        cnt += 1;
+    }
+    print(cnt, " ", sum, " ", wsum);
+}
